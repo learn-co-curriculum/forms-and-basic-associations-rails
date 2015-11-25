@@ -36,7 +36,7 @@ let's imagine the form having a text field for each pet we want to add where the
 
 we could have <input type="text" name="owner[pets_name_1]"> and then try to iterate and collect all the pet names from params but that wouldn't be great. is there a way to get params to hold an array of data?
 
-<input type="text" name="owner[pets_names][]"> with that array field that will group all the pet names they enter into a single param key that points to an array of string pet names.
+<input type="text" name="owner[pets_names][]"> with that array field that will group all the pet names they enter into a single param key that points to an array of string pet names. make sure to explicitly teach them or remind them about the array field naming convention and point them to http://guides.rubyonrails.org/form_helpers.html#understanding-parameter-naming-conventions
 
 then we just need to build pets_names= to be able to mass assign.
 
