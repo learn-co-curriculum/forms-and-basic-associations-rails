@@ -52,3 +52,5 @@ once they build that writer the form just works
 also show that we could add an arbitrary amount of pets this way so the form itself mirrors the many nature of the relationship
 
 we're also setting up nicely to move to nested attributes for a has many using this sort of custom writer.
+
+<a href='https://learn.co/lessons/forms-and-basic-associations-rails' data-visibility='hidden'>View this lesson on Learn.co</a>
