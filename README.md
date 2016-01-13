@@ -105,7 +105,8 @@ class PostsController < ApplicationController
 end
 ```
 
-Notice the difference—we're now accepting a category name, rather than a category id.
+Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, becuase there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method. Oh hey! we created our own `category_name=` method! So convienant.
+
 We can change the view as well now:
 
 ```
@@ -151,6 +152,8 @@ or pick an existing one. What we want is autocompletion, which we can get with a
   <textarea name="post[content]"></textarea>
 <% end %>
 ```
+
+Data lists are a new select type in the HTML5 spec that allows for easy autocomplete. Check out [this codepen](http://codepen.io/matt-west/pen/jKnzG) for how they work!
 
 ## Updating multiple rows
 
