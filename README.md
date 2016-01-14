@@ -157,25 +157,16 @@ Data lists are a new select type in the HTML5 spec that allows for easy autocomp
 
 ## Updating multiple rows
 
-Let's extend our domain model so Posts have Tags.
+Let's think about the reverse association. Categories have many posts. 
 
-Unlike with Categories, a Post may have many Tags.
-
-```
-# app/models/tag.rb
-class Tag < ActiveRecord::Base
-  belongs_to :post
-end
-
-# app/models/post.rb
-class Post < ActiveRecord::Base
-  belongs_to :category
-  has_many :tags
-  # ...
+```ruby
+# app/models/category.rb
+class Category < ActiveRecord::Base
+  has_many :posts
 end
 ```
 
-How do we let the user specify multiple values in a form?
+Given a category, how do we let a user specify many different posts to categorize? We can't do it with just one `<select>` because we can have many posts in that category.
 
 ### Using array parameters
 
@@ -184,45 +175,43 @@ Rails uses a [naming convention] to let you submit an array of values to a contr
 If you put this in a view,
 
 ```
-<%= form_for @post do |f| %>
-  <input name="tag_names[]">
-  <input name="tag_names[]">
-  <input name="tag_names[]">
+<%= form_for @category do |f| %>
+  <input name="post_ids[]">
+  <input name="post_ids[]">
+  <input name="post_ids[]">
 <% end %>
 ```
 
-When the form is submitted, your controller will have access to a `tag_names` param, which
+When the form is submitted, your controller will have access to a `post_ids` param, which
 will be an array of strings.
 
 We can write a setter method for this, just like we did for `category_name`:
 
 ```
-# app/models/post.rb
-class Post < ActiveRecord::Base
-   def tag_names=(names)
-     names.each do |name|
-       self.tags.build(name: name)
+# app/models/category.rb
+class Category < ActiveRecord::Base
+   def post_ids=(ids)
+     ids.each do |id|
+       post = Post.find(id)
+       posts << post
      end
    end
 end
 ```
 
-We're using the `build` method here to create and add tags. This ActiveRecord method creates
-a new instance of the other side of a relation, setting the foreign keys correctly.
-
-Now we can use the same wiring in the controller to set `tag_names` from `params`:
+Now we can use the same wiring in the controller to set `post_ids` from `params`:
 
 ```
-# app/controllers/posts_controller.rb
-class PostsController < ApplicationController
+# app/controllers/categories_controller.rb
+class CategoriesController < ApplicationController
   def create
-    Post.create(post_params)
+    Category.create(category_params)
   end
 
   private
 
-  def post_params
-    params.require(:post).permit(:category_name, :content, :tag_names)
+  def category_params
+    params.require(:category).permit(:name, :post_ids)
   end
 end
 ```
