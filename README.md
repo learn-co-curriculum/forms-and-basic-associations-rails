@@ -1,56 +1,221 @@
-
 # Forms And Basic Associations Rails
 
 ## Objectives
 
 1. Populate select options based on association options.
-2. Assign a FK based on a select box value directly through mass assignment. (post[category_id])
+2. Assign a FK based on an input box value directly through mass assignment. (post[category_id])
 3. Define a belongs_to association writer.
 4. Build a form field that will delegate to a belongs_to association writer. (post#category_name=) through controller mass assignment.
 5. Define a has_many association writer.
 6. Build a form field that will delegate to a has_many association writer. (owner#pet_names=) through controller mass assignment.
 
-## Notes
+## The problem
 
-were explicitly not teaching nested_attributes or nested ar forms right now.
+Let's say we have a simple blogging system. Our models are Post and Category. A Post belongs_to a Category.
 
-This is about showing the student the power of custom writers that can handle complex association logic but still work with mass assignment.
-
-Start with assigning a post a category (we'll pre-seed their development.db with categories). This lab can include all the code required - so all the models and controllers and views can be fully wired and we're just showing them how to update the post#new and edit form to assign a category. we're going to have an unrelated domain of owners and pets within this rails app too because I can't thing of a reasonable has_many/belongs_to for posts.
-
-Have them build an input text field called post[category_id] where the user could enter the category pk and category_id will be correctly mass assigned and the post will have that category. that's the basic association assignment.
-
-point out that users would never do that as they don't know what a PK is - we need to give them the name of the category id but assign a pk. let's build a select input - we'll use basic html first <select>Category.all.each do |c| <option> end type thing so they can see all the details and see how a select box passed the selected options' value.
-
-Then we can show them the collection_select form helper.
-
-That works great but what about if you wanted to create a new category and not an existing one?
-
-all that's happening to assign the category is that our form is writing to category_id= which is provided by AR. But what if we just built our own writer called category_name=. What would that method need to do? take a string, find the category and assign it. we can also extend the functionality of this method to find or create a category by name. by building the method we keep our controller action super clean and bring all the logic into our model.
-
-let's look at a has_many association in a different domain. imagine an owner having many pets where every pet belonged to an owner. How might we allow a user to input many pets for an owner when editing or creating an owner?
-
-The pet and the owner doesn't exist yet so we have no existing rows in the database to link with foreign keys.
-
-let's imagine the form having a text field for each pet we want to add where the value of the text field will be the pets name.
-
-we could have <input type="text" name="owner[pets_name_1]"> and then try to iterate and collect all the pet names from params but that wouldn't be great. is there a way to get params to hold an array of data?
-
-<input type="text" name="owner[pets_names][]"> with that array field that will group all the pet names they enter into a single param key that points to an array of string pet names. make sure to explicitly teach them or remind them about the array field naming convention and point them to http://guides.rubyonrails.org/form_helpers.html#understanding-parameter-naming-conventions
-
-then we just need to build pets_names= to be able to mass assign.
-
-what does that method need to do? iterate and build a pet for each name and assign that pet to the owner
-
-def pets_names=(names)
-  names.each do |name|
-    self.pets.build(:name => name)
-  end
+```
+# app/models/post.rb
+class Post < ActiveRecord::Base
+  belongs_to :category
 end
 
-once they build that writer the form just works
-also show that we could add an arbitrary amount of pets this way so the form itself mirrors the many nature of the relationship
+# app/models/category.rb
+class Category < ActiveRecord::Base
+  has_many :posts
+end
+```
 
-we're also setting up nicely to move to nested attributes for a has many using this sort of custom writer.
+When a user creates a post, how will they specify what category it belongs to?
 
-<a href='https://learn.co/lessons/forms-and-basic-associations-rails' data-visibility='hidden'>View this lesson on Learn.co</a>
+## Using the category ID
+
+As a first pass, we might build a form like this:
+
+```
+<%= form_for @post do |f| %>
+  <label>Category: <input type="text" name="post[category_id]"></label>
+  <textarea name="post[content]"></textarea>
+<% end %>
+```
+
+This will work if we wire up our `PostsController` with the right parameters:
+
+```
+class PostsController < ApplicationController
+  def create
+    Post.create(post_params)
+  end
+
+  private
+
+  def post_params
+    params.require(:post).permit(:category_id, :content)
+  end
+end
+```
+
+But as a user experience, this is miserable. I have to know the id of the category I
+want to use. As a user, it is very unlikely that I know this or want to.
+
+We could rewrite our controller to accept a `category_name` instead of an id:
+
+```
+class PostsController < ApplicationController
+  def create
+    category = Category.find_or_create_by(name: params[:category_name])
+    Post.create({content: params[:content], category: category})
+  end
+end
+```
+
+But we'll have to do this anywhere we want to set the category for a Post. When we're
+setting a Post's categories, the one thing we know we have is a Post object. What if we could
+move this logic to the model?
+
+Specifically, what if we gave the Post model a `category_name` attribute?
+
+## You can define your own attributes on models
+
+Since our ActiveRecord models are still just Ruby classes, we can define our own set
+methods:
+
+```
+# app/models/post.rb
+class Post < ActiveRecord::Base
+   def category_name=(name)
+     self.category = Category.find_or_create_by(name: name)
+   end
+end
+```
+
+Now we can set `category_name` on a post. We can do it when creating a post too, so our
+controller becomes quite simple again:
+
+```
+class PostsController < ApplicationController
+  def create
+    Post.create(post_params)
+  end
+
+  private
+
+  def post_params
+    params.require(:post).permit(:category_name, :content)
+  end
+end
+```
+
+Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, becuase there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method. Oh hey! we created our own `category_name=` method! So convienant.
+
+We can change the view as well now:
+
+```
+<%= form_for @post do |f| %>
+  <label>Category: <input type="text" name="post[category_name]"></label>
+  <textarea name="post[content]"></textarea>
+<% end %>
+```
+
+Now the user can enter a category by name, a much friendlier experience.
+
+## Selecting from existing categories
+
+If we want to let the user pick from existing categories, we can use a the [collection_select]
+helper to render a `<select>` tag:
+
+```
+<%= form_for @post do |f| %>
+  <%= f.collection_select :category, Category.all, :id, :name %>
+  <textarea name="post[content]"></textarea>
+<% end %>
+```
+
+This will create a drop down selection input where the user can pick a category.
+
+However, we've lost the ability for users to create their own categories.
+
+That might be what you want. For example, the content management system for a magazine
+would probably want to enforce that the category of an article is one of the sections
+actually printed in the magazine.
+
+In this case, I think we want to give users the flexibility to either create a new category,
+or pick an existing one. What we want is autocompletion, which we can get with a [datalist]:
+
+```
+<%= form_for @post do |f| %>
+  <%= f.text_field :category, list: "categories_autocomplete" %>
+  <datalist id="categories_autocomplete">
+    <%= Category.all.each do |category| %>
+      <option value="<%= category.name %>">
+    <% end %>
+  </datalist>
+  <textarea name="post[content]"></textarea>
+<% end %>
+```
+
+Data lists are a new select type in the HTML5 spec that allows for easy autocomplete. Check out [this codepen](http://codepen.io/matt-west/pen/jKnzG) for how they work!
+
+## Updating multiple rows
+
+Let's think about the reverse association. Categories have many posts. 
+
+```ruby
+# app/models/category.rb
+class Category < ActiveRecord::Base
+  has_many :posts
+end
+```
+
+Given a category, how do we let a user specify many different posts to categorize? We can't do it with just one `<select>` because we can have many posts in that category.
+
+### Using array parameters
+
+Rails uses a [naming convention] to let you submit an array of values to a controller.
+
+If you put this in a view,
+
+```
+<%= form_for @category do |f| %>
+  <input name="post_ids[]">
+  <input name="post_ids[]">
+  <input name="post_ids[]">
+<% end %>
+```
+
+When the form is submitted, your controller will have access to a `post_ids` param, which
+will be an array of strings.
+
+We can write a setter method for this, just like we did for `category_name`:
+
+```
+# app/models/category.rb
+class Category < ActiveRecord::Base
+   def post_ids=(ids)
+     ids.each do |id|
+       post = Post.find(id)
+       posts << post
+     end
+   end
+end
+```
+
+Now we can use the same wiring in the controller to set `post_ids` from `params`:
+
+```
+# app/controllers/categories_controller.rb
+class CategoriesController < ApplicationController
+  def create
+    Category.create(category_params)
+  end
+
+  private
+
+  def category_params
+    params.require(:category).permit(:name, :post_ids)
+  end
+end
+```
+
+[collection_select]: http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
+[naming convention]: http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions
+[datalist]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
