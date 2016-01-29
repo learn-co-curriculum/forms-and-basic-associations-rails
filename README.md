@@ -219,3 +219,5 @@ end
 [collection_select]: http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
 [naming convention]: http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions
 [datalist]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
+
+<p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails' title='Forms And Basic Associations Rails'>Forms And Basic Associations Rails</a> on Learn.co and start learning to code for free.</p>
