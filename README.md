@@ -105,7 +105,7 @@ class PostsController < ApplicationController
 end
 ```
 
-Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, becuase there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method. Oh hey! we created our own `category_name=` method! So convienant.
+Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, because there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method. Oh hey! we created our own `category_name=` method! So convenient.
 
 We can change the view as well now:
 
@@ -220,4 +220,4 @@ end
 [naming convention]: http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions
 [datalist]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
 
-<p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails' title='Forms And Basic Associations Rails'>Forms And Basic Associations Rails</a> on Learn.co and start learning to code for free.</p>
+<p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
