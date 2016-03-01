@@ -33,8 +33,8 @@ As a first pass, we might build a form like this:
 
 ```erb
 <%= form_for @post do |f| %>
-  <label>Category: <input type="text" name="post[category_id]"></label>
-  <textarea name="post[content]"></textarea>
+  <%= f.label :category_id, :category %><%= f.text_field :category_id %>
+  <%= f.text_field :content %>
 <% end %>
 ```
 
@@ -74,7 +74,7 @@ move this logic to the model?
 
 Specifically, what if we gave the Post model a `category_name` attribute?
 
-## You can define your own attributes on models
+## Convenience methods on models (virtuals)
 
 Since our ActiveRecord models are still just Ruby classes, we can define our own setter
 methods:
@@ -87,6 +87,20 @@ class Post < ActiveRecord::Base
    end
 end
 ```
+
+The setter method `#category_name=` is called whenever a `Post` is initialized with a `category_name` field. We can expand `Post.create(post_params)` to
+
+```ruby
+Post.create({
+  post: {
+    category_name: params[:post][:category_name],
+    content: params[:post][:content]
+  }
+})
+```
+
+so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fallback to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
+
 
 Now we can set `category_name` on a post. We can do it when creating a post too, so our
 controller becomes quite simple again:
@@ -107,19 +121,6 @@ end
 
 Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, because there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method.
 
-The setter method `#category_name=` is called whenever a `Post` is initialized with a `category_name` field. We can expand `Post.create(post_params)` to
-
-```ruby
-Post.create({
-  post: {
-    category_name: params[:post][:category_name],
-    content: params[:post][:content]
-  }
-})
-```
-
-so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fallback to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model.
-
 We can change the view as well now:
 
 ```erb
@@ -130,7 +131,7 @@ We can change the view as well now:
 <% end %>
 ```
 
-Now the user can enter a category by name, a much friendlier experience.
+Now the user can enter a category by name (instead of needing to look up its id), and we handle finding or creating the `Category` in the black box of the server. This results in a much friendlier experience for the user.
 
 ## Selecting from existing categories
 
