@@ -69,12 +69,11 @@ end
 ```
 
 But we'll have to do this anywhere we want to set the category for a Post. When we're
-setting a Post's categories, the one thing we know we have is a Post object. What if we could
-move this logic to the model?
+setting a Post's categories, the one thing we know we have is a Post object. What if we could move this logic to the model?
 
 Specifically, what if we gave the Post model a `category_name` attribute?
 
-## Convenience methods on models (virtuals)
+## Defining a custom setter (convenience attributes on models)
 
 Since our ActiveRecord models are still just Ruby classes, we can define our own setter
 methods:
@@ -99,8 +98,7 @@ Post.create({
 })
 ```
 
-so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fallback to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
-
+so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fall back to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
 
 Now we can set `category_name` on a post. We can do it when creating a post too, so our
 controller becomes quite simple again:
