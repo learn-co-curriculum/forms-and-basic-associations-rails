@@ -3,17 +3,17 @@
 ## Objectives
 
 1. Populate select options based on association options.
-2. Assign a FK based on an input box value directly through mass assignment. (post[category_id])
+2. Assign a FK based on an input box value directly through mass assignment. (`post[category_id]`)
 3. Define a belongs_to association writer.
-4. Build a form field that will delegate to a belongs_to association writer. (post#category_name=) through controller mass assignment.
+4. Build a form field that will delegate to a belongs_to association writer. (`post#category_name=`) through controller mass assignment.
 5. Define a has_many association writer.
-6. Build a form field that will delegate to a has_many association writer. (owner#pet_names=) through controller mass assignment.
+6. Build a form field that will delegate to a has_many association writer. (`owner#pet_names=`) through controller mass assignment.
 
 ## The problem
 
-Let's say we have a simple blogging system. Our models are Post and Category. A Post belongs_to a Category.
+Let's say we have a simple blogging system. Our models are Post and Category. A Post `belongs_to` a Category.
 
-```
+```ruby
 # app/models/post.rb
 class Post < ActiveRecord::Base
   belongs_to :category
@@ -25,22 +25,22 @@ class Category < ActiveRecord::Base
 end
 ```
 
-When a user creates a post, how will they specify what category it belongs to?
+Now we need to build the functionality for a user to create a Post. We're going to need a form for the Post's content, and some way to represent what Category the Post belongs to.
 
 ## Using the category ID
 
 As a first pass, we might build a form like this:
 
-```
+```erb
 <%= form_for @post do |f| %>
-  <label>Category: <input type="text" name="post[category_id]"></label>
-  <textarea name="post[content]"></textarea>
+  <%= f.label :category_id, :category %><%= f.text_field :category_id %>
+  <%= f.text_field :content %>
 <% end %>
 ```
 
 This will work if we wire up our `PostsController` with the right parameters:
 
-```
+```ruby
 class PostsController < ApplicationController
   def create
     Post.create(post_params)
@@ -59,27 +59,26 @@ want to use. As a user, it is very unlikely that I know this or want to.
 
 We could rewrite our controller to accept a `category_name` instead of an id:
 
-```
+```ruby
 class PostsController < ApplicationController
   def create
     category = Category.find_or_create_by(name: params[:category_name])
-    Post.create({content: params[:content], category: category})
+    Post.create(content: params[:content], category: category)
   end
 end
 ```
 
 But we'll have to do this anywhere we want to set the category for a Post. When we're
-setting a Post's categories, the one thing we know we have is a Post object. What if we could
-move this logic to the model?
+setting a Post's categories, the one thing we know we have is a Post object. What if we could move this logic to the model?
 
 Specifically, what if we gave the Post model a `category_name` attribute?
 
-## You can define your own attributes on models
+## Defining a custom setter (convenience attributes on models)
 
-Since our ActiveRecord models are still just Ruby classes, we can define our own set
+Since our ActiveRecord models are still just Ruby classes, we can define our own setter
 methods:
 
-```
+```ruby
 # app/models/post.rb
 class Post < ActiveRecord::Base
    def category_name=(name)
@@ -88,10 +87,23 @@ class Post < ActiveRecord::Base
 end
 ```
 
+The setter method `#category_name=` is called whenever a `Post` is initialized with a `category_name` field. We can expand `Post.create(post_params)` to
+
+```ruby
+Post.create({
+  post: {
+    category_name: params[:post][:category_name],
+    content: params[:post][:content]
+  }
+})
+```
+
+so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fall back to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
+
 Now we can set `category_name` on a post. We can do it when creating a post too, so our
 controller becomes quite simple again:
 
-```
+```ruby
 class PostsController < ApplicationController
   def create
     Post.create(post_params)
@@ -105,28 +117,29 @@ class PostsController < ApplicationController
 end
 ```
 
-Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, because there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method. Oh hey! we created our own `category_name=` method! So convenient.
+Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, because there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method.
 
 We can change the view as well now:
 
-```
+```erb
 <%= form_for @post do |f| %>
-  <label>Category: <input type="text" name="post[category_name]"></label>
-  <textarea name="post[content]"></textarea>
+  <%= f.label :category_name %>
+  <%= f.text_field :category_name %>
+  <%= f.text_field :content %>
 <% end %>
 ```
 
-Now the user can enter a category by name, a much friendlier experience.
+Now the user can enter a category by name (instead of needing to look up its id), and we handle finding or creating the `Category` in the black box of the server. This results in a much friendlier experience for the user.
 
 ## Selecting from existing categories
 
 If we want to let the user pick from existing categories, we can use a the [collection_select]
 helper to render a `<select>` tag:
 
-```
+```erb
 <%= form_for @post do |f| %>
   <%= f.collection_select :category, Category.all, :id, :name %>
-  <textarea name="post[content]"></textarea>
+  <%= f.text_field :content %>
 <% end %>
 ```
 
@@ -139,9 +152,9 @@ would probably want to enforce that the category of an article is one of the sec
 actually printed in the magazine.
 
 In this case, I think we want to give users the flexibility to either create a new category,
-or pick an existing one. What we want is autocompletion, which we can get with a [datalist]:
+or pick an existing one. What we want is autocompletion, which we can get with a `datalist`:
 
-```
+```erb
 <%= form_for @post do |f| %>
   <%= f.text_field :category, list: "categories_autocomplete" %>
   <datalist id="categories_autocomplete">
@@ -153,11 +166,11 @@ or pick an existing one. What we want is autocompletion, which we can get with a
 <% end %>
 ```
 
-Data lists are a new select type in the HTML5 spec that allows for easy autocomplete. Check out [this codepen](http://codepen.io/matt-west/pen/jKnzG) for how they work!
+[datalist] is a new element in the HTML5 spec that allows for easy autocomplete. Check below in [Resources](#resources) for further reading.
 
 ## Updating multiple rows
 
-Let's think about the reverse association. Categories have many posts. 
+Let's think about the reverse association. Categories have many posts.
 
 ```ruby
 # app/models/category.rb
@@ -215,6 +228,12 @@ class CategoriesController < ApplicationController
   end
 end
 ```
+
+## Resources
+
+[<datalist>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist): https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
+[collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select): http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
+
 
 [collection_select]: http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
 [naming convention]: http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions
