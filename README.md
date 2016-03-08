@@ -206,7 +206,7 @@ class Category < ActiveRecord::Base
    def post_ids=(ids)
      ids.each do |id|
        post = Post.find(id)
-       posts << post
+       self.posts << post
      end
    end
 end
