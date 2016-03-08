@@ -25,7 +25,7 @@ class Category < ActiveRecord::Base
 end
 ```
 
-When a user creates a post, how will they specify what category it belongs to?
+Now we need to build the functionality for a user to create a Post. We're going to need a form for the Post's content, and some way to represent what Category the Post belongs to.
 
 ## Using the category ID
 
