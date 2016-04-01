@@ -54,8 +54,7 @@ class PostsController < ApplicationController
 end
 ```
 
-But as a user experience, this is miserable. I have to know the id of the category I
-want to use. As a user, it is very unlikely that I know this or want to.
+But as a user experience, this is miserable. I have to know the id of the category I want to use. As a user, it is very unlikely that I know this or want to.
 
 We could rewrite our controller to accept a `category_name` instead of an id:
 
@@ -68,15 +67,13 @@ class PostsController < ApplicationController
 end
 ```
 
-But we'll have to do this anywhere we want to set the category for a Post. When we're
-setting a Post's categories, the one thing we know we have is a Post object. What if we could move this logic to the model?
+But we'll have to do this anywhere we want to set the category for a Post. When we're setting a Post's categories, the one thing we know we have is a Post object. What if we could move this logic to the model?
 
 Specifically, what if we gave the Post model a `category_name` attribute?
 
 ## Defining a custom setter (convenience attributes on models)
 
-Since our ActiveRecord models are still just Ruby classes, we can define our own setter
-methods:
+Since our ActiveRecord models are still just Ruby classes, we can define our own setter methods:
 
 ```ruby
 # app/models/post.rb
@@ -100,8 +97,7 @@ Post.create({
 
 so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fall back to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
 
-Now we can set `category_name` on a post. We can do it when creating a post too, so our
-controller becomes quite simple again:
+Now we can set `category_name` on a post. We can do it when creating a post too, so our controller becomes quite simple again:
 
 ```ruby
 class PostsController < ApplicationController
@@ -133,8 +129,7 @@ Now the user can enter a category by name (instead of needing to look up its id)
 
 ## Selecting from existing categories
 
-If we want to let the user pick from existing categories, we can use a the [collection_select]
-helper to render a `<select>` tag:
+If we want to let the user pick from existing categories, we can use a `[collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select)` helper to render a `<select>` tag:
 
 ```erb
 <%= form_for @post do |f| %>
@@ -147,12 +142,9 @@ This will create a drop down selection input where the user can pick a category.
 
 However, we've lost the ability for users to create their own categories.
 
-That might be what you want. For example, the content management system for a magazine
-would probably want to enforce that the category of an article is one of the sections
-actually printed in the magazine.
+That might be what you want. For example, the content management system for a magazine would probably want to enforce that the category of an article is one of the sections actually printed in the magazine.
 
-In this case, I think we want to give users the flexibility to either create a new category,
-or pick an existing one. What we want is autocompletion, which we can get with a `datalist`:
+In this case, I think we want to give users the flexibility to either create a new category, or pick an existing one. What we want is autocompletion, which we can get with a [`datalist`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist):
 
 ```erb
 <%= form_for @post do |f| %>
@@ -166,7 +158,7 @@ or pick an existing one. What we want is autocompletion, which we can get with a
 <% end %>
 ```
 
-[datalist] is a new element in the HTML5 spec that allows for easy autocomplete. Check below in [Resources](#resources) for further reading.
+`datalist` is a new element in the HTML5 spec that allows for easy autocomplete. Check below in [Resources](#resources) for further reading.
 
 ## Updating multiple rows
 
@@ -183,9 +175,9 @@ Given a category, how do we let a user specify many different posts to categoriz
 
 ### Using array parameters
 
-Rails uses a [naming convention] to let you submit an array of values to a controller.
+Rails uses a [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions) to let you submit an array of values to a controller.
 
-If you put this in a view,
+If you put this in a view, it looks like this.
 
 ```
 <%= form_for @category do |f| %>
@@ -195,8 +187,7 @@ If you put this in a view,
 <% end %>
 ```
 
-When the form is submitted, your controller will have access to a `post_ids` param, which
-will be an array of strings.
+When the form is submitted, your controller will have access to a `post_ids` param, which will be an array of strings.
 
 We can write a setter method for this, just like we did for `category_name`:
 
@@ -231,12 +222,8 @@ end
 
 ## Resources
 
-[<datalist>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist): https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
-[collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select): http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
-
-
-[collection_select]: http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select
-[naming convention]: http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions
-[datalist]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist
+ - [datalist](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist)
+ - [collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select)
+ - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
 
 <p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
