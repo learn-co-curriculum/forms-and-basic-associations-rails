@@ -88,7 +88,7 @@ The setter method `#category_name=` is called whenever a `Post` is initialized w
 
 ```ruby
 Post.create({
-  post: {
+ {
     category_name: params[:post][:category_name],
     content: params[:post][:content]
   }
@@ -129,7 +129,7 @@ Now the user can enter a category by name (instead of needing to look up its id)
 
 ## Selecting from existing categories
 
-If we want to let the user pick from existing categories, we can use a `[collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select)` helper to render a `<select>` tag:
+If we want to let the user pick from existing categories, we can use a [Collection Select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select) helper to render a `<select>` tag:
 
 ```erb
 <%= form_for @post do |f| %>
@@ -144,7 +144,7 @@ However, we've lost the ability for users to create their own categories.
 
 That might be what you want. For example, the content management system for a magazine would probably want to enforce that the category of an article is one of the sections actually printed in the magazine.
 
-In this case, I think we want to give users the flexibility to either create a new category, or pick an existing one. What we want is autocompletion, which we can get with a [`datalist`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist):
+In our case, however, we want to give users the flexibility to create a new category *or* pick an existing one. What we want is autocompletion, which we can get with a [`datalist`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist):
 
 ```erb
 <%= form_for @post do |f| %>
@@ -181,9 +181,9 @@ If you put this in a view, it looks like this.
 
 ```
 <%= form_for @category do |f| %>
-  <input name="post_ids[]">
-  <input name="post_ids[]">
-  <input name="post_ids[]">
+  <input name="category[post_ids][]">
+  <input name="category[post_ids][]">
+  <input name="category[post_ids][]">
 <% end %>
 ```
 
