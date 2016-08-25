@@ -215,7 +215,7 @@ class CategoriesController < ApplicationController
   private
 
   def category_params
-    params.require(:category).permit(:name, :post_ids)
+    params.require(:category).permit(:name, :post_ids => [])
   end
 end
 ```
@@ -227,3 +227,5 @@ end
  - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
 
 <p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
+
+<p class='util--hide'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
