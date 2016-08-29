@@ -150,7 +150,7 @@ In our case, however, we want to give users the flexibility to create a new cate
 <%= form_for @post do |f| %>
   <%= f.text_field :category, list: "categories_autocomplete" %>
   <datalist id="categories_autocomplete">
-    <%= Category.all.each do |category| %>
+    <% Category.all.each do |category| %>
       <option value="<%= category.name %>">
     <% end %>
   </datalist>
