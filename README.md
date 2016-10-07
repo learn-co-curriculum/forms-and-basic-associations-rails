@@ -148,7 +148,7 @@ In our case, however, we want to give users the flexibility to create a new cate
 
 ```erb
 <%= form_for @post do |f| %>
-  <%= f.text_field :category, list: "categories_autocomplete" %>
+  <%= f.text_field :category_name, list: "categories_autocomplete" %>
   <datalist id="categories_autocomplete">
     <%= Category.all.each do |category| %>
       <option value="<%= category.name %>">
@@ -227,3 +227,5 @@ end
  - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
 
 <p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
+
+<p class='util--hide'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
