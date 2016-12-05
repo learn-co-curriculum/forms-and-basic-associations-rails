@@ -179,7 +179,7 @@ Rails uses a [naming convention](http://guides.rubyonrails.org/v3.2.13/form_help
 
 If you put this in a view, it looks like this.
 
-```
+```erb
 <%= form_for @category do |f| %>
   <input name="category[post_ids][]">
   <input name="category[post_ids][]">
@@ -191,7 +191,7 @@ When the form is submitted, your controller will have access to a `post_ids` par
 
 We can write a setter method for this, just like we did for `category_name`:
 
-```
+```ruby
 # app/models/category.rb
 class Category < ActiveRecord::Base
    def post_ids=(ids)
@@ -205,7 +205,7 @@ end
 
 Now we can use the same wiring in the controller to set `post_ids` from `params`:
 
-```
+```ruby
 # app/controllers/categories_controller.rb
 class CategoriesController < ApplicationController
   def create
@@ -227,3 +227,5 @@ end
  - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
 
 <p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
+
+<p class='util--hide'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
