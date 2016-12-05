@@ -61,8 +61,8 @@ We could rewrite our controller to accept a `category_name` instead of an id:
 ```ruby
 class PostsController < ApplicationController
   def create
-    category = Category.find_or_create_by(name: params[:category_name])
-    Post.create(content: params[:content], category: category)
+    category = Category.find_or_create_by(name: params[:post][:category_name])
+    Post.create(content: params[:post][:content], category: category)
   end
 end
 ```
@@ -227,3 +227,5 @@ end
  - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
 
 <p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
+
+<p class='util--hide'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
