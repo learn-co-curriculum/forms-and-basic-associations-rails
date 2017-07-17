@@ -3,11 +3,11 @@
 ## Objectives
 
 1. Populate select options based on association options.
-2. Assign a foreign key based on an input box value directly through mass assignment. (`post[category_id]`)
+2. Assign a foreign key based on an input box value directly through mass assignment (`post[category_id]`).
 3. Define a belongs_to association writer.
-4. Build a form field that will delegate to a belongs_to association writer. (`post#category_name=`) through controller mass assignment.
+4. Build a form field that will delegate to a belongs\_to association writer (`post#category_name=`) through controller mass assignment.
 5. Define a has_many association writer.
-6. Build a form field that will delegate to a has_many association writer. (`category#post_ids=`) through controller mass assignment.
+6. Build a form field that will delegate to a has\_many association writer (`category#post_ids=`) through controller mass assignment.
 
 ## The problem
 
@@ -54,9 +54,9 @@ class PostsController < ApplicationController
 end
 ```
 
-But as a user experience, this is miserable. I have to know the id of the category I want to use. As a user, it is very unlikely that I know this or want to.
+But as a user experience, this is miserable. I have to know the ID of the category I want to use. As a user, it is very unlikely that I know this or want to.
 
-We could rewrite our controller to accept a `category_name` instead of an id:
+We could rewrite our controller to accept a `category_name` instead of an ID:
 
 ```ruby
 class PostsController < ApplicationController
@@ -73,7 +73,7 @@ Specifically, what if we gave the Post model a `category_name` attribute?
 
 ## Defining a custom setter (convenience attributes on models)
 
-Since our ActiveRecord models are still just Ruby classes, we can define our own setter methods:
+Since our Active Record models are still just Ruby classes, we can define our own setter methods:
 
 ```ruby
 # app/models/post.rb
@@ -95,7 +95,7 @@ Post.create({
 })
 ```
 
-so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fall back to setting `category_name` through ActiveRecord. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
+so that you can see that `#category_name=` will indeed be called. Since we have defined this setter ourselves, `Post.create` does not try to fall back to setting `category_name` through Active Record. You can think of `#category_name=` as intercepting the call to the database and instead shadowing the attribute `category_name` by, one, making sure the `Category` exists; and, two, providing it in-memory for the `Post` model. We sometimes call these in-memory attributes "virtuals".
 
 Now we can set `category_name` on a post. We can do it when creating a post too, so our controller becomes quite simple again:
 
@@ -113,7 +113,7 @@ class PostsController < ApplicationController
 end
 ```
 
-Notice the difference—we're now accepting a category name, rather than a category id. Even though you don't have an ActiveRecord field for `category_name`, because there is a key in the `post_params` hash for `category_name` it still calls the `category_name=` method.
+Notice the difference –– we're now accepting a category name, rather than a category ID. Even though there's no Active Record field for `category_name`, the `category_name` key in the `post_params` hash prompts a call to the `category_name=` method.
 
 We can change the view as well now:
 
@@ -125,7 +125,7 @@ We can change the view as well now:
 <% end %>
 ```
 
-Now the user can enter a category by name (instead of needing to look up its id), and we handle finding or creating the `Category` in the black box of the server. This results in a much friendlier experience for the user.
+Now the user can enter a category by name (instead of needing to look up its ID), and we handle finding or creating the `Category` in the black box of the server. This results in a much friendlier experience for the user.
 
 ## Selecting from existing categories
 
@@ -150,7 +150,7 @@ In our case, however, we want to give users the flexibility to create a new cate
 <%= form_for @post do |f| %>
   <%= f.text_field :category, list: "categories_autocomplete" %>
   <datalist id="categories_autocomplete">
-    <%= Category.all.each do |category| %>
+    <% Category.all.each do |category| %>
       <option value="<%= category.name %>">
     <% end %>
   </datalist>
@@ -179,7 +179,7 @@ Rails uses a [naming convention](http://guides.rubyonrails.org/v3.2.13/form_help
 
 If you put this in a view, it looks like this.
 
-```
+```erb
 <%= form_for @category do |f| %>
   <input name="category[post_ids][]">
   <input name="category[post_ids][]">
@@ -191,7 +191,7 @@ When the form is submitted, your controller will have access to a `post_ids` par
 
 We can write a setter method for this, just like we did for `category_name`:
 
-```
+```ruby
 # app/models/category.rb
 class Category < ActiveRecord::Base
    def post_ids=(ids)
@@ -205,7 +205,7 @@ end
 
 Now we can use the same wiring in the controller to set `post_ids` from `params`:
 
-```
+```ruby
 # app/controllers/categories_controller.rb
 class CategoriesController < ApplicationController
   def create
@@ -215,7 +215,7 @@ class CategoriesController < ApplicationController
   private
 
   def category_params
-    params.require(:category).permit(:name, :post_ids)
+    params.require(:category).permit(:name, post_ids: [])
   end
 end
 ```
