@@ -61,8 +61,8 @@ We could rewrite our controller to accept a `category_name` instead of an ID:
 ```ruby
 class PostsController < ApplicationController
   def create
-    category = Category.find_or_create_by(name: params[:category_name])
-    Post.create(content: params[:content], category: category)
+    category = Category.find_or_create_by(name: params[:post][:category_name])
+    Post.create(content: params[:post][:content], category: category)
   end
 end
 ```
