@@ -71,15 +71,19 @@ But we'll have to do this anywhere we want to set the category for a Post. When 
 
 Specifically, what if we gave the Post model a `category_name` attribute?
 
-## Defining a custom setter (convenience attributes on models)
+## Defining a custom setter and getter (convenience attributes on models)
 
-Since our Active Record models are still just Ruby classes, we can define our own setter methods:
+Since our Active Record models are still just Ruby classes, we can define our own setter and getter methods:
 
 ```ruby
 # app/models/post.rb
 class Post < ActiveRecord::Base
    def category_name=(name)
      self.category = Category.find_or_create_by(name: name)
+   end
+   
+   def category_name
+      self.category.name
    end
 end
 ```
