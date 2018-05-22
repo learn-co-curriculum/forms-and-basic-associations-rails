@@ -35,6 +35,7 @@ As a first pass, we might build a form like this:
 <%= form_for @post do |f| %>
   <%= f.label :category_id, :category %><%= f.text_field :category_id %>
   <%= f.text_field :content %>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -124,6 +125,7 @@ We can change the view as well now:
   <%= f.label :category_name %>
   <%= f.text_field :category_name %>
   <%= f.text_field :content %>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -137,6 +139,7 @@ If we want to let the user pick from existing categories, we can use a [Collecti
 <%= form_for @post do |f| %>
   <%= f.collection_select :category, Category.all, :id, :name %>
   <%= f.text_field :content %>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -157,6 +160,7 @@ In our case, however, we want to give users the flexibility to create a new cate
     <% end %>
   </datalist>
   <textarea name="post[content]"></textarea>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -186,6 +190,7 @@ If you put this in a view, it looks like this.
   <input name="category[post_ids][]">
   <input name="category[post_ids][]">
   <input name="category[post_ids][]">
+  <input type="submit" value="Submit">
 <% end %>
 ```
 
