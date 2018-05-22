@@ -84,7 +84,7 @@ class Post < ActiveRecord::Base
    end
 
    def category_name
-      self.category.name
+      self.category ? self.category.name : nil
    end
 end
 ```
