@@ -35,6 +35,7 @@ As a first pass, we might build a form like this:
 <%= form_for @post do |f| %>
   <%= f.label :category_id, :category %><%= f.text_field :category_id %>
   <%= f.text_field :content %>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -81,9 +82,9 @@ class Post < ActiveRecord::Base
    def category_name=(name)
      self.category = Category.find_or_create_by(name: name)
    end
-   
+
    def category_name
-      self.category.name
+      self.category ? self.category.name : nil
    end
 end
 ```
@@ -92,10 +93,8 @@ The setter method `#category_name=` is called whenever a `Post` is initialized w
 
 ```ruby
 Post.create({
- {
-    category_name: params[:post][:category_name],
-    content: params[:post][:content]
-  }
+  category_name: params[:post][:category_name],
+  content: params[:post][:content]
 })
 ```
 
@@ -126,6 +125,7 @@ We can change the view as well now:
   <%= f.label :category_name %>
   <%= f.text_field :category_name %>
   <%= f.text_field :content %>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -137,8 +137,9 @@ If we want to let the user pick from existing categories, we can use a [Collecti
 
 ```erb
 <%= form_for @post do |f| %>
-  <%= f.collection_select :category, Category.all, :id, :name %>
+  <%= f.collection_select :category_name, Category.all, :name, :name %>
   <%= f.text_field :content %>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -159,6 +160,7 @@ In our case, however, we want to give users the flexibility to create a new cate
     <% end %>
   </datalist>
   <textarea name="post[content]"></textarea>
+  <%= f.submit %>
 <% end %>
 ```
 
@@ -188,6 +190,7 @@ If you put this in a view, it looks like this.
   <input name="category[post_ids][]">
   <input name="category[post_ids][]">
   <input name="category[post_ids][]">
+  <input type="submit" value="Submit">
 <% end %>
 ```
 
