@@ -81,7 +81,7 @@ class Post < ActiveRecord::Base
    def category_name=(name)
      self.category = Category.find_or_create_by(name: name)
    end
-   
+
    def category_name
       self.category.name
    end
@@ -92,10 +92,8 @@ The setter method `#category_name=` is called whenever a `Post` is initialized w
 
 ```ruby
 Post.create({
- {
-    category_name: params[:post][:category_name],
-    content: params[:post][:content]
-  }
+  category_name: params[:post][:category_name],
+  content: params[:post][:content]
 })
 ```
 
