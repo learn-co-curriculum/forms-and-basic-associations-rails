@@ -137,7 +137,7 @@ If we want to let the user pick from existing categories, we can use a [Collecti
 
 ```erb
 <%= form_for @post do |f| %>
-  <%= f.collection_select :category, Category.all, :id, :name %>
+  <%= f.collection_select :category_name, Category.all, :name, :name %>
   <%= f.text_field :content %>
   <%= f.submit %>
 <% end %>
