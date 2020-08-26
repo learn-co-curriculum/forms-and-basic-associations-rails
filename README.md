@@ -210,6 +210,14 @@ class Category < ActiveRecord::Base
 end
 ```
 
+If we're certain that the post ids being submitted in the form all belong to existing posts, we don't even need this setter method! The following code is valid and will automatically assign the new category id to each post:
+
+```ruby
+# As long as posts 5, 2, 3 exist, this will work! The category_id for each of these
+# posts will be set to the new category's id
+Category.create(name: 'This and That', post_ids: %w[5 2 3])
+```
+
 Now we can use the same wiring in the controller to set `post_ids` from `params`:
 
 ```ruby
