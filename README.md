@@ -240,7 +240,3 @@ end
  - [datalist](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist)
  - [collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select)
  - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
-
-<p data-visibility='hidden'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
-
-<p class='util--hide'>View <a href='https://learn.co/lessons/forms-and-basic-associations-rails'>Forms and Basic Association </a> on Learn.co and start learning to code for free.</p>
