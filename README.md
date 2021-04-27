@@ -1,13 +1,13 @@
-# Forms And Basic Associations Rails
+# Forms And Basic Associations in Rails
 
 ## Objectives
 
 1. Populate select options based on association options.
 2. Assign a foreign key based on an input box value directly through mass assignment (`post[category_id]`).
 3. Define a belongs_to association writer.
-4. Build a form field that will delegate to a belongs\_to association writer (`post#category_name=`) through controller mass assignment.
+4. Build a form field that will delegate to a belongs_to association writer (`post#category_name=`) through controller mass assignment.
 5. Define a has_many association writer.
-6. Build a form field that will delegate to a has\_many association writer (`category#post_ids=`) through controller mass assignment.
+6. Build a form field that will delegate to a has_many association writer (`category#post_ids=`) through controller mass assignment.
 
 ## The problem
 
@@ -149,7 +149,7 @@ However, we've lost the ability for users to create their own categories.
 
 That might be what you want. For example, the content management system for a magazine would probably want to enforce that the category of an article is one of the sections actually printed in the magazine.
 
-In our case, however, we want to give users the flexibility to create a new category *or* pick an existing one. What we want is autocompletion, which we can get with a [`datalist`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist):
+In our case, however, we want to give users the flexibility to create a new category _or_ pick an existing one. What we want is autocompletion, which we can get with a [`datalist`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist):
 
 ```erb
 <%= form_for @post do |f| %>
@@ -237,6 +237,6 @@ end
 
 ## Resources
 
- - [datalist](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist)
- - [collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select)
- - [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
+- [datalist](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist)
+- [collection_select](http://apidock.com/rails/ActionView/Helpers/FormOptionsHelper/collection_select)
+- [naming convention](http://guides.rubyonrails.org/v3.2.13/form_helpers.html#understanding-parameter-naming-conventions)
